@@ -175,7 +175,7 @@ async def 주식(interaction: discord.Interaction, sellorbuy: app_commands.Choic
             print("domestic")
 
 
-    await interaction.response.send_message(result, ephemeral=True)
+    await interaction.response.send_message("개발중...", ephemeral=True)
 
 
 
