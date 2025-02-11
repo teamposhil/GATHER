@@ -18,7 +18,7 @@ user_collection = userdb["user"]
 stockdb = client["stocks"]
 stock_domestic_collection = stockdb["domestic"]
 stock_international_collection = stockdb["international"]
-rate_collection = stockdb["rate"]
+gmtodt_collection = stockdb["gmtodt"]
 start_time = datetime.datetime.utcnow()  # 봇 시작 시간 기록
 
 sasungin1 = 0
@@ -41,7 +41,6 @@ jongshim1 = 0
 jongshim2 = stock_domestic_collection.find_one({"company_name": "jongshim"})["price"]
 lyundai1 = 0
 lyundai2 = stock_domestic_collection.find_one({"company_name": "lyundai"})["price"]
-rate = rate_collection.find_one({"codecheck": "code"})["rate"]
 
 # 봇 초대 URL 생성 함수
 def get_invite_url(bot_id):
@@ -66,7 +65,7 @@ async def on_ready():
 @bot.tree.command(name='공지하기', description="공지할 내용을 입력해주세요!")
 @app_commands.describe(title='공지할 내용의 제목을 입력해주세요!', inputs='공지할 내용을 입력해주세요!', code='관리자인지 확인하는 절차입니다!')
 async def 공지하기(interaction: discord.Interaction, title: str, inputs: str, code: int):
-    if code == 110010011:
+    if code == 110010011: #관리자 코드입니다. 원하시는 숫자로 바꾸시면 됩니다. 기본 값은 110010011입니다.
         embed = discord.Embed(title=title, description=inputs, color=0x62c1cc)
         await interaction.response.send_message(content="@everyone", embed=embed, ephemeral=False)
     else:
@@ -77,6 +76,7 @@ async def 공지하기(interaction: discord.Interaction, title: str, inputs: str
 async def 내통장(interaction: discord.Interaction):
     user = interaction.user  # 명령을 호출한 유저
     db_user = user_collection.find_one({"user_id": user.id})
+    tier = 0
     embed = discord.Embed(
         title=f"{user.name}님의 통장",  # 제목에 유저의 닉네임 넣기
         description="고객님의 잔액을 보여드립니다.",  # 설명 부분에 유저 ID
@@ -107,7 +107,7 @@ async def 내통장(interaction: discord.Interaction):
             rank = "Master"
             tier = 999
             master = 1
-        embed.add_field(name="현재 잔액(Game Money): ", value=f"{balance}GM, {balancedt}DT", inline=False)
+        embed.add_field(name="현재 잔액(Game Money): ", value=f"{balance}GM", inline=False)
         embed.add_field(name="현재 랭크: ", value=f"{rank} {tier}", inline=False)
         if master == 1:
             embed.add_field(name="마스터 랭크: ", value="당신은 1억 1천만GM 이상을 보유하고 있으므로 마스터등급입니다! 축하합니다!!", inline=False)
@@ -119,25 +119,25 @@ async def 내통장(interaction: discord.Interaction):
 
 @bot.tree.command(name='심심하다', description='심심해')
 async def 심심하다(interaction: discord.Interaction):
-    await interaction.response.send_message("어?쩔?", ephemeral=False)
+    await interaction.response.send_message("어?쩔? 24시간 동안 컴퓨터 세상에서 사는 나보다는 나을 듯 ㅋ", ephemeral=False)
 
 
 @bot.tree.command(name='세계주식소개', description='세계 주식 중 게더 주식에 업로드 되어있는 주식들의 이름을 표시합니다!')
 async def 세계주식소개(interaction: discord.Interaction):
     embed = discord.Embed(
-        title="게더 주식-NYSE(뉴욕증권거래소)",
+        title="게더 주식-NUSS(NAMUU증권거래소)",
         description="게더 주식에 상장된 주식들 중 세계주식에 해당되는 주식입니다.",
         color=discord.Color.blue(),
         timestamp=datetime.datetime.utcnow()
     )
-    embed.add_field(name="사성전자인터내셔널(SASUNG ELECTRONIC)", value="분류코드: 001, 대한민국의 최대 전자제품 제조사입니다! 주로 은하수폰을 판매합니다!",
+    embed.add_field(name="사성전자인터내셔널(SASUNG ELECTRONIC)", value="분류코드: 001, 게이머공화국의 최대 전자제품 제조사입니다! 주로 은하수폰을 판매합니다!",
                     inline=False)
-    embed.add_field(name="배(PEAR)", value="분류코드: 002, 미국 최대의 스마트폰 제조사입니다. 주로 페어폰을 판매합니다!", inline=False)
+    embed.add_field(name="배(PEAR)", value="분류코드: 002, 나무나라 최대의 스마트폰 제조사입니다. 주로 페어폰을 판매합니다!", inline=False)
     embed.add_field(name="은비디아(ENVIDIA)", value="분류코드: 018, 세계적인 전자제품 생산업체이며, 주로 ETX 그래픽카드를 판매합니다!", inline=False)
-    embed.add_field(name="하이엇게임즈(HIOTGAMES)", value="분류코드:097, 세계 1등 게임인 랭킹 오브 레전드와 FPS 게임 잘로란트를 제작한 회사입니다!",
+    embed.add_field(name="하이엇게임즈(HIOTGAMES)", value="분류코드: 097, 세계 1등 게임인 랭킹 오브 레전드와 FPS 게임 잘로란트를 제작한 회사입니다!",
                     inline=False)
-    embed.add_field(name="월마트(QALMART)", value="분류코드:356, 미국 최대의 대형 마트 프렌차이즈며, 우리나라에서는 기마트라는 이름으로 운영됩니다!", inline=False)
-    embed.add_field(name="파이자(PPIZER)", value="분류코드:890, 세계적으로 유명한 의약품 회사로, 제일 믿을만한 의약품 기업 1위라는 타이틀을 가지고 있습니다!",
+    embed.add_field(name="월마트(QALMART)", value="분류코드: 356, 나무나라 최대의 대형 마트 프렌차이즈며, 우리나라에서는 기마트라는 이름으로 운영됩니다!", inline=False)
+    embed.add_field(name="화이저(PPIZER)", value="분류코드: 890, 세계적으로 유명한 의약품 회사로, 제일 믿을만한 의약품 기업 1위라는 타이틀을 가지고 있습니다!",
                     inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -145,33 +145,176 @@ async def 세계주식소개(interaction: discord.Interaction):
 @bot.tree.command(name='국내주식소개', description='국내 주식 중 게더 주식에 업로드 되어있는 주식들의 이름을 표시합니다!')
 async def 국내주식소개(interaction: discord.Interaction):
     embed = discord.Embed(
-        title="게더 주식-KOSPI(유가증권시장)",
+        title="게더 주식-ROGOSPI(게이머공화국유가증권시장)",
         description="게더 주식에 상장된 주식들 중 국내주식에 해당되는 주식입니다.",
         color=discord.Color.yellow(),
         timestamp=datetime.datetime.utcnow()
     )
-    embed.add_field(name="사성전자(SASUNG ELECTRONIC)", value="분류코드: A-1, 대한민국의 최대 전자제품 제조사입니다! 주로 은하수폰을 판매합니다!",
+    embed.add_field(name="사성전자(SASUNG ELECTRONIC)", value="분류코드: A-1, 게이머공화국 최대 전자제품 제조사입니다! 주로 은하수폰을 판매합니다!",
                     inline=False)
     embed.add_field(name="오지전자(OG ELECTRONICS)", value="분류코드: A-3, 세계에서 가장 모니터를 잘 만드는 회사입니다. 주로 WLED TV를 판매합니다!",
                     inline=False)
-    embed.add_field(name="종심(JONGSHIM)", value="분류코드: E-7, 대한민국의 최대 가공식품 판매사입니다! 주로 라면과 과자를 판매합니다!", inline=False)
-    embed.add_field(name="련대(LYUNDAI)", value="분류코드:097, 세계 최고 기술력의 중공업 회사로, 요즘엔 아파트도 건설합니다!", inline=False)
+    embed.add_field(name="종심(JONGSHIM)", value="분류코드: E-7, 게이머공화국의 최대 가공식품 판매사입니다! 주로 라면과 과자를 판매합니다!", inline=False)
+    embed.add_field(name="련대(LYUNDAI)", value="분류코드: Y-9, 게이머공화국 최고의 자동차 제조 기술력을 가진 회사입니다! 원래는 중공업 회사였습니다!", inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+@bot.tree.command(name='주식시장', description='현재 주식의 가격을 확인합니다!')
+@app_commands.choices(국내야세계야=[
+    app_commands.Choice(name="세계", value="세계주식"),
+    app_commands.Choice(name="국내", value="국내주식"), ])
+async def 주식시장(interaction: discord.Interaction, 국내야세계야: app_commands.Choice[str]):
+    if 국내야세계야.value == '국내주식':
+        embed = discord.Embed(
+            title="게더 주식-ROGOSPI(게이머공화국유가증권시장)",
+            description="게더 주식에 상장된 주식들 중 국내주식에 해당되는 주식입니다. 주식 가격은 1분마다 변경되요!",
+            color=discord.Color.yellow(),
+            timestamp=datetime.datetime.utcnow()
+        )
+        rate_datas = stock_domestic_collection.find_one({"company_name": "SASUNG"})["rate"]
+        if rate_datas*100 < 100:
+            rate_datas = abs(100 - (rate_datas * 100))
+            embed.add_field(name="A-1 사성전자",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "SASUNG"})["price"]}GM (-{rate_datas}%)",
+                            inline=False)
+        else:
+            rate_datas = abs(100 - (rate_datas * 100))
+            embed.add_field(name="A-1 사성전자",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "SASUNG"})["price"]}GM (+{rate_datas}%)",
+                            inline=False)
+
+        rate_datao = stock_domestic_collection.find_one({"company_name": "OG"})["rate"]
+        if rate_datao*100 < 100:
+            rate_datao = abs(100 - (rate_datao * 100))
+            embed.add_field(name="A-3 오지전자",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "OG"})["price"]}GM (-{rate_datao}%)",
+                            inline=False)
+        else:
+            rate_datao = abs(100 - (rate_datao * 100))
+            embed.add_field(name="A-3 오지전자",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "OG"})["price"]}GM (+{rate_datao}%)",
+                            inline=False)
+
+
+        rate_dataj = stock_domestic_collection.find_one({"company_name": "jongshim"})["rate"]
+        if rate_dataj*100 < 100:
+            rate_dataj = abs(100 - (rate_dataj * 100))
+            embed.add_field(name="E-7 종심",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "jongshim"})["price"]}GM (-{rate_dataj}%)",
+                            inline=False)
+        else:
+            rate_dataj = abs(100 - (rate_dataj * 100))
+            embed.add_field(name="E-7 종심",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "jongshim"})["price"]}GM (+{rate_dataj}%)",
+                            inline=False)
+
+        rate_datal = stock_domestic_collection.find_one({"company_name": "lyundai"})["rate"]
+        if rate_datal*100 < 100:
+            rate_datal = abs(100 - (rate_datal * 100))
+            embed.add_field(name="Y-9 련대",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "lyundai"})["price"]}GM (-{rate_datal}%)",
+                            inline=False)
+        else:
+            rate_datal = abs(100 - (rate_datal * 100))
+            embed.add_field(name="Y-9 련대",
+                            value=f"{stock_domestic_collection.find_one({"company_name": "lyundai"})["price"]}GM (+{rate_datal}%)",
+                            inline=False)
+        await interaction.response.send_message(embed=embed)
+    if 국내야세계야.value == '세계주식':
+        embed = discord.Embed(
+            title="게더 주식-NUSS(NAMUU증권거래소)",
+            description="게더 주식에 상장된 주식들 중 세계주식에 해당되는 주식입니다.",
+            color=discord.Color.blue(),
+            timestamp=datetime.datetime.utcnow()
+        )
+        rate_datas = stock_international_collection.find_one({"company_name": "SASUNG"})["rate"]
+        exchange_rates = gmtodt_collection.find_one({"codecheck": "code"})["gmtodt"]
+        if rate_datas*100 < 100:
+            rate_datas = abs(100 - (rate_datas * 100))
+            embed.add_field(name="001 사성전자",
+                            value=f"{stock_international_collection.find_one({"company_name": "SASUNG"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "SASUNG"})["price"]}GM) (-{rate_datas}%)",
+                            inline=False)
+        else:
+            rate_datas = abs(100 - (rate_datas * 100))
+            embed.add_field(name="001 사성전자",
+                            value=f"{stock_international_collection.find_one({"company_name": "SASUNG"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "SASUNG"})["price"]}GM) (+{rate_datas}%)",
+                            inline=False)
+
+        rate_datao = stock_international_collection.find_one({"company_name": "PEAR"})["rate"]
+        if rate_datao*100 < 100:
+            rate_datao = abs(100 - (rate_datao * 100))
+            embed.add_field(name="002 배",
+                            value=f"{stock_international_collection.find_one({"company_name": "PEAR"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "PEAR"})["price"]}GM) (-{rate_datao}%)",
+                            inline=False)
+        else:
+            rate_datao = abs(100 - (rate_datao * 100))
+            embed.add_field(name="002 배",
+                            value=f"{stock_international_collection.find_one({"company_name": "PEAR"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "PEAR"})["price"]}GM) (+{rate_datao}%)",
+                            inline=False)
+
+        rate_dataj = stock_international_collection.find_one({"company_name": "ENVIDIA"})["rate"]
+        if rate_dataj*100 < 100:
+            rate_dataj = abs(100 - (rate_dataj * 100))
+            embed.add_field(name="018 은비디아",
+                            value=f"{stock_international_collection.find_one({"company_name": "ENVIDIA"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "ENVIDIA"})["price"]}GM) (-{rate_dataj}%)",
+                            inline=False)
+        else:
+            rate_dataj = abs(100 - (rate_dataj * 100))
+            embed.add_field(name="018 은비디아",
+                            value=f"{stock_international_collection.find_one({"company_name": "ENVIDIA"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "ENVIDIA"})["price"]}GM) (+{rate_dataj}%)",
+                            inline=False)
+
+        rate_datal = stock_international_collection.find_one({"company_name": "HIOTGAMES"})["rate"]
+        if rate_datal*100 < 100:
+            rate_datal = abs(100 - (rate_datal * 100))
+            embed.add_field(name="097 하이엇게임즈",
+                            value=f"{stock_international_collection.find_one({"company_name": "HIOTGAMES"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "HIOTGAMES"})["price"]}GM) (-{rate_datal}%)",
+                            inline=False)
+        else:
+            rate_datal = abs(100 - (rate_datal * 100))
+            embed.add_field(name="Y-9 련대",
+                            value=f"{stock_international_collection.find_one({"company_name": "HIOTGAMES"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "HIOTGAMES"})["price"]}GM) (+{rate_datal}%)",
+                            inline=False)
+
+        rate_dataq = stock_international_collection.find_one({"company_name": "QALMART"})["rate"]
+        if rate_dataq * 100 < 100:
+            rate_dataq = abs(100 - (rate_dataq * 100))
+            embed.add_field(name="356 월마트",
+                            value=f"{stock_international_collection.find_one({"company_name": "QALMART"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "QALMART"})["price"]}GM) (-{rate_dataq}%)",
+                            inline=False)
+        else:
+            rate_dataq = abs(100 - (rate_dataq * 100))
+            embed.add_field(name="356 월마트",
+                            value=f"{stock_international_collection.find_one({"company_name": "QALMART"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "QALMART"})["price"]}GM) (+{rate_dataq}%)",
+                            inline=False)
+
+        rate_datap = stock_international_collection.find_one({"company_name": "PPIZER"})["rate"]
+        if rate_datap * 100 < 100:
+            rate_datap = abs(100 - (rate_datap * 100))
+            embed.add_field(name="890 화이저",
+                            value=f"{stock_international_collection.find_one({"company_name": "PPIZER"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "PPIZER"})["price"]}GM) (-{rate_datap}%)",
+                            inline=False)
+        else:
+            rate_datap = abs(100 - (rate_datap * 100))
+            embed.add_field(name="890 화이저",
+                            value=f"{stock_international_collection.find_one({"company_name": "PPIZER"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "PPIZER"})["price"]}GM) (+{rate_datap}%)",
+                            inline=False)
+        await interaction.response.send_message(embed=embed)
+
+
 @bot.tree.command(name='주식', description='주식을 구매하거나 판매합니다!')
-@app_commands.choices(sellorbuy=[
-    app_commands.Choice(name="판매", value="판매"),
-    app_commands.Choice(name="구매", value="구매"), ])
-@app_commands.choices(intordom=[
-    app_commands.Choice(name="세계", value="세계"),
-    app_commands.Choice(name="국내", value="국내"), ])
-async def 주식(interaction: discord.Interaction, sellorbuy: app_commands.Choice[str], intordom: app_commands.Choice[str]):
+@app_commands.choices(판매니구매니=[
+    app_commands.Choice(name="판매", value="주식판매"),
+    app_commands.Choice(name="구매", value="주식구매"), ])
+@app_commands.choices(국내니세계니=[
+    app_commands.Choice(name="세계", value="세계주식"),
+    app_commands.Choice(name="국내", value="국내주식"), ])
+async def 주식(interaction: discord.Interaction, 판매니구매니: app_commands.Choice[str], 국내니세계니: app_commands.Choice[str], name: str, num: int):
     user_id = interaction.user.id
-    if sellorbuy.value == '판매':
-        if intordom.value == '세계':
+    if 판매니구매니.value == '주식판매':
+        if 국내니세계니.value == '세계주식':
             print("world")
     else:
-        if intordom.value == '국내':
+        if 국내니세계니.value == '국내주식':
             print("domestic")
 
 
@@ -230,7 +373,7 @@ async def 도움말(interaction: discord.Interaction):
 @bot.tree.command(name='ㅗ', description="for 욕쟁이들")
 async def ㅗ(interaction: discord.Interaction):
     await interaction.response.send_message(
-        f"온세상사람들! {interaction.user.name}가 저한테 뻐큐를 날려요! 이런 인성  파탄난 놈을 어떻게 할까요~~~~~~?:어쩌라고", ephemeral=False)
+        f"온세상사람들! {interaction.user.name}가 저한테 뻐큐를 날려요! 이런 인성 파탄난 놈을 어떻게 할까요~~~~~~?", ephemeral=False)
 
 
 @bot.tree.command(name='정보', description="게더의 정보를 알려드려요!")
@@ -247,8 +390,9 @@ async def 정보(interaction: discord.Interaction):
     )
     embed.add_field(name="봇 이름", value=f"{bot.user.name}", inline=False)
     embed.add_field(name="작동 시간", value=uptime_str, inline=False)
-    embed.add_field(name="나이", value="약 4개월", inline=False)
-    embed.add_field(name="제작자", value="devloggerkr", inline=False)  # 제작자 정보
+    embed.add_field(name="나이", value="약 5개월", inline=False)
+    embed.add_field(name="제작자", value="devloggerkr, poshil", inline=False)  # 제작자 정보
+    embed.add_field(name="버전", value="Ver. βeta 0.2.1", inline=False)
     embed.set_footer(text="GATHER")
     # 봇 추가 버튼 생성
     view = discord.ui.View()
@@ -282,6 +426,16 @@ async def 유저등록(interaction: discord.Interaction):
             "user_name": user_name,
             "balancegm": 1000000,  # 초기 자본
             "balancedt": 0,
+            "sasungdo": 0,
+            "og": 0,
+            "jongshim": 0,
+            "lyundai": 0,
+            "sasungnin": 0,
+            "pear": 0,
+            "envidia": 0,
+            "hiotgames": 0,
+            "qalmart": 0,
+            "ppizer": 0,
             "registered_at": datetime.datetime.utcnow()
         }
         user_collection.insert_one(new_user)  # DB에 유저 데이터 삽입
@@ -305,4 +459,6 @@ async def 유저탈퇴(interaction: discord.Interaction):
         await channel.send(f"{user_name}님이{kst_now.strftime('%Y-%m-%d %H:%M:%S')}에 게더 주식에서 탈퇴되었습니다!")
     else:
         await interaction.response.send_message("등록되지 않은 유저입니다.", ephemeral=True)
+
+
 bot.run(token)
