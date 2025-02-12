@@ -363,8 +363,8 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
             
         else:
                 await interaction.response.send_message("개발중..", ephemeral=True)
-else:
-    await interaction.response.send_message("개발중..", ephemeral=True)
+    else:
+        await interaction.response.send_message("개발중..", ephemeral=True)
 
 
 
