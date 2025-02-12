@@ -11,7 +11,7 @@ load_dotenv()  # .env 파일 로드
 token = os.getenv("DISCORD_BOT_TOKEN")
 MONGO_URI = os.getenv("MONGO_URI")
 # MongoDB 클라이언트 설정
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI) 
 userdb = client["user"]  # 데이터베이스 이름
 user_collection = userdb["user"]
 
