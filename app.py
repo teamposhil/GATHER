@@ -300,7 +300,15 @@ async def 주식시장(interaction: discord.Interaction, 국내야세계야: app
                             inline=False)
         await interaction.response.send_message(embed=embed)
 
-
+@bot.tree.command(name='주식', description='주식을 구매하거나 판매합니다!')
+@app_commands.choices(판매니구매니=[
+    app_commands.Choice(name="판매", value="주식판매"),
+    app_commands.Choice(name="구매", value="주식구매"),
+])
+@app_commands.choices(국내야세계야=[
+    app_commands.Choice(name="세계", value="세계주식"),
+    app_commands.Choice(name="국내", value="국내주식"),
+])
 async def 주식(interaction: discord.Interaction, 판매니구매니: app_commands.Choice[str], 국내야세계야: app_commands.Choice[str], name: str, num: int):
     user_id = interaction.user.id
 
