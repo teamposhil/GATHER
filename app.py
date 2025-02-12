@@ -6,12 +6,12 @@ import pytz
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
-import random
+import random  
 load_dotenv()  # .env 파일 로드
 token = os.getenv("DISCORD_BOT_TOKEN")
 MONGO_URI = os.getenv("MONGO_URI")
 # MongoDB 클라이언트 설정
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI) 
 userdb = client["user"]  # 데이터베이스 이름
 user_collection = userdb["user"]
 
@@ -312,13 +312,61 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
     user_id = interaction.user.id
     if 판매니구매니.value == '주식판매':
         if 국내니세계니.value == '세계주식':
-            print("world")
-    else:
-        if 국내니세계니.value == '국내주식':
-            print("domestic")
+            if name == "001":
+                price = stock_international_collection.find_one({"company_name": "SASUNG"})["price"]
+                check = num * price
+                balance = db_user.get("balancegm", 0)
+                balance = balance - check
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"balancegm":balance})
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"sasungin":num})
+                await interaction.response.send_message("사성전자 주식을 성공적으로 구매했습니다!", ephemeral=True)
+            if name == "002":
+                price = stock_international_collection.find_one({"company_name": "PEAR"})["price"]
+                check = num * price
+                balance = db_user.get("balancegm", 0)
+                balance = balance - check
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"balancegm":balance})
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"pear":num})
+                await interaction.response.send_message("배 주식을 성공적으로 구매했습니다!", ephemeral=True)
+            if name == "018":
+                price = stock_international_collection.find_one({"company_name": "ENVIDIA"})["price"]
+                check = num * price
+                balance = db_user.get("balancegm", 0)
+                balance = balance - check
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"balancegm":balance})
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"envidia":num})
+                await interaction.response.send_message("은비디아 주식을 성공적으로 구매했습니다!", ephemeral=True)
+            if name == "097":
+                price = stock_international_collection.find_one({"company_name": "HIOTGAMES"})["price"]
+                check = num * price
+                balance = db_user.get("balancegm", 0)
+                balance = balance - check
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"balancegm":balance})
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"hiotgames":num})
+                await interaction.response.send_message("하이엇게임즈 주식을 성공적으로 구매했습니다!", ephemeral=True)
+            if name == "356":
+                price = stock_international_collection.find_one({"company_name": "QALMART"})["price"]
+                check = num * price
+                balance = db_user.get("balancegm", 0)
+                balance = balance - check
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"balancegm":balance})
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"qalmart":num})
+                await interaction.response.send_message("월마트 주식을 성공적으로 구매했습니다!", ephemeral=True)
+            if name == "890":
+                price = stock_international_collection.find_one({"company_name": "PPIZER"})["price"]
+                check = num * price
+                balance = db_user.get("balancegm", 0)
+                balance = balance - check
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"balancegm":balance})
+                user_collection.update_one({"user_id": interaction.user.id}, {"%set":{"ppizer":num})
+                await interaction.response.send_message("화이저 주식을 성공적으로 구매했습니다!", ephemeral=True)
+            
+        else:
+                await interaction.response.send_message("개발중..", ephemeral=True)
+else:
+    await interaction.response.send_message("개발중..", ephemeral=True)
 
 
-    await interaction.response.send_message("개발중...", ephemeral=True)
 
 
 
@@ -430,7 +478,7 @@ async def 유저등록(interaction: discord.Interaction):
             "og": 0,
             "jongshim": 0,
             "lyundai": 0,
-            "sasungnin": 0,
+            "sasungin": 0,
             "pear": 0,
             "envidia": 0,
             "hiotgames": 0,
