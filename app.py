@@ -301,65 +301,89 @@ async def 주식시장(interaction: discord.Interaction, 국내야세계야: app
         await interaction.response.send_message(embed=embed)
 
 
-@bot.tree.command(name='주식', description='주식을 구매하거나 판매합니다!')
-@app_commands.choices(판매니구매니=[
-    app_commands.Choice(name="판매", value="주식판매"),
-    app_commands.Choice(name="구매", value="주식구매"),
-])
-@app_commands.choices(국내니세계니=[
-    app_commands.Choice(name="세계", value="세계주식"),
-    app_commands.Choice(name="국내", value="국내주식"),
-])
-async def 주식(interaction: discord.Interaction, 판매니구매니: app_commands.Choice[str], 국내니세계니: app_commands.Choice[str], name: str, num: int):
+async def 주식(interaction: discord.Interaction, 판매니구매니: app_commands.Choice[str], 국내야세계야: app_commands.Choice[str], name: str, num: int):
     user_id = interaction.user.id
 
-    if 판매니구매니.value == '주식판매':
-        if 국내니세계니.value == '세계주식':
-            # DB에서 찾을 때의 회사 이름 & 유저 컬렉션의 필드 이름 매핑
-            stock_map = {
-                "001": ("SASUNG", "sasungin"),
-                "002": ("PEAR", "pear"),
-                "018": ("ENVIDIA", "envidia"),  
-                "097": ("HIOTGAMES", "hiotgames"),
-                "356": ("QALMART", "qalmart"),
-                "890": ("PPIZER", "ppizer"),
-            }
+    # 주식 코드 매핑 (분류코드: 회사명, 사용자 컬렉션 필드명)
+    stock_map = {
+        "세계주식": {
+            "001": ("SASUNG", "sasungin"),  
+            "002": ("PEAR", "pear"),
+            "018": ("ENVIDIA", "envidia"),
+            "097": ("HIOTGAMES", "hiotgames"),
+            "356": ("QALMART", "qalmart"),
+            "890": ("PPIZER", "ppizer"),
+        },
+        "국내주식": {
+            "A-1": ("SASUNG", "sasungdo"),  
+            "A-3": ("OG", "og"),  
+            "E-7": ("JONGSHIM", "jongshim"),  
+            "Y-9": ("LYUNDAI", "lyundai"),
+        }
+    }
 
-            if name in stock_map:
-                db_stock_name, user_stock_field = stock_map[name]
-
-                # 주식 가격 가져오기
-                stock_data = stock_international_collection.find_one({"company_name": db_stock_name})
-                if not stock_data:
-                    await interaction.response.send_message(f"{db_stock_name} 주식 정보를 찾을 수 없습니다.", ephemeral=True)
-                    return
-
-                price = stock_data["price"]
-                total_cost = num * price * exchange_rates
-
-                # 유저 정보 가져오기
-                user_data = user_collection.find_one({"user_id": user_id}) or {}
-                balance = user_data.get("balancegm", 0)
-                current_stock = user_data.get(user_stock_field, 0)  # 해당 주식의 현재 보유량
-
-                if balance < total_cost:
-                    await interaction.response.send_message("잔액이 부족합니다.", ephemeral=True)
-                    return
-
-                # 잔액 차감 & 주식 추가
-                user_collection.update_one(
-                    {"user_id": user_id},
-                    {"$inc": {"balancegm": -total_cost, user_stock_field: num}},
-                    upsert=True
-                )
-
-                await interaction.response.send_message(f"{db_stock_name} 주식을 성공적으로 구매했습니다!", ephemeral=True)
-            else:
-                await interaction.response.send_message("잘못된 주식 코드입니다.", ephemeral=True)
-        else:
-            await interaction.response.send_message("개발중..", ephemeral=True)
+    # 주식 코드가 '세계주식'인지 '국내주식'인지 구분
+    if 국내야세계야.value == "세계주식":
+        stock_collection = stock_international_collection
+        stock_category = "세계주식"
+    elif 국내야세계야.value == "국내주식":
+        stock_collection = stock_domestic_collection
+        stock_category = "국내주식"
     else:
-        await interaction.response.send_message("개발중..", ephemeral=True)
+        await interaction.response.send_message("잘못된 주식 코드입니다.", ephemeral=True)
+        return
+
+    if name in stock_map[stock_category]:
+        db_stock_name, user_stock_field = stock_map[stock_category][name]
+
+        # 주식 가격 가져오기
+        stock_data = stock_collection.find_one({"company_name": db_stock_name})
+        if not stock_data:
+            await interaction.response.send_message(f"{db_stock_name} 주식 정보를 찾을 수 없습니다.", ephemeral=True)
+            return
+
+        price = stock_data["price"]
+        
+        if stock_category == "세계주식":
+            total_amount = num * price * exchange_rates  # 총 금액 계산 (구매 또는 판매)
+        else:
+            total_amount = num * price  # 국내 주식은 환율 없이 계산
+
+        # 유저 정보 가져오기
+        user_data = user_collection.find_one({"user_id": user_id}) or {}
+        balance = user_data.get("balancegm", 0)
+        current_stock = user_data.get(user_stock_field, 0)  # 현재 보유량
+
+        if 판매니구매니.value == "주식구매":
+            # 잔액이 충분한지 확인
+            if balance < total_amount:
+                await interaction.response.send_message("잔액이 부족합니다.", ephemeral=True)
+                return
+
+            # 잔액 차감 & 주식 추가
+            user_collection.update_one(
+                {"user_id": user_id},
+                {"$inc": {"balancegm": -total_amount, user_stock_field: num}},
+                upsert=True
+            )
+            await interaction.response.send_message(f"{db_stock_name} 주식을 성공적으로 구매했습니다! (총 {total_amount:,}GM 사용)", ephemeral=True)
+
+        elif 판매니구매니.value == "주식판매":
+            # 보유 주식이 충분한지 확인
+            if current_stock < num:
+                await interaction.response.send_message(f"{db_stock_name} 주식이 부족합니다. 현재 보유 주식: {current_stock}주", ephemeral=True)
+                return
+
+            # 잔액 추가 & 주식 감소
+            user_collection.update_one(
+                {"user_id": user_id},
+                {"$inc": {"balancegm": total_amount, user_stock_field: -num}},
+                upsert=True
+            )
+            await interaction.response.send_message(f"{db_stock_name} 주식을 성공적으로 판매했습니다! (총 {total_amount:,}GM 수익)", ephemeral=True)
+
+    else:
+        await interaction.response.send_message("잘못된 주식 코드입니다.", ephemeral=True)
 
 
 
