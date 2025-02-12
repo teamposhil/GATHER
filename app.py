@@ -6,7 +6,7 @@ import pytz
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
-import random
+import random  
 load_dotenv()  # .env 파일 로드
 token = os.getenv("DISCORD_BOT_TOKEN")
 MONGO_URI = os.getenv("MONGO_URI")
