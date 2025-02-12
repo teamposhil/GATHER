@@ -385,11 +385,11 @@ async def 가위바위보하기(interaction: discord.Interaction, 입력창: str
     await interaction.response.send_message(result, ephemeral=True)
 
 
-@bot.tree.command(name='초대하기', description="서버에 게더를 추가하는 버튼을 출력해드려요!")
-async def 추가(interaction: discord.Interaction):
+@bot.tree.command(name='초대하기', description="서버에 게더를 초대하는 버튼을 출력해드려요!")
+async def 초대하기(interaction: discord.Interaction):
     view = discord.ui.View()
     button1 = discord.ui.Button(
-        label="게더봇 내 서버에 추가하기",
+        label="게더봇 내 서버에 초대하기",
         url="https://discord.com/oauth2/authorize?client_id=1316915541709029467&permissions=0&integration_type=0&scope=bot",
         style=discord.ButtonStyle.link
     )
