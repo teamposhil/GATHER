@@ -309,13 +309,14 @@ async def 주식시장(interaction: discord.Interaction, 국내야세계야: app
     app_commands.Choice(name="세계", value="세계주식"),
     app_commands.Choice(name="국내", value="국내주식"),
 ])
-async def 주식(interaction: discord.Interaction, 판매니구매니: app_commands.Choice[str], 국내야세계야: app_commands.Choice[str], name: str, num: int):
+async def 주식(interaction: discord.Interaction, 판매니구매니: app_commands.Choice[str], 국내야세계야: app_commands.Choice[str],
+             name: str, num: int):
     user_id = interaction.user.id
 
     # 주식 코드 매핑 (분류코드: 회사명, 사용자 컬렉션 필드명)
     stock_map = {
         "세계주식": {
-            "001": ("SASUNG", "sasungin"),  
+            "001": ("SASUNG", "sasungin"),
             "002": ("PEAR", "pear"),
             "018": ("ENVIDIA", "envidia"),
             "097": ("HIOTGAMES", "hiotgames"),
@@ -323,9 +324,9 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
             "890": ("PPIZER", "ppizer"),
         },
         "국내주식": {
-            "A-1": ("SASUNG", "sasungdo"),  
-            "A-3": ("OG", "og"),  
-            "E-7": ("JONGSHIM", "jongshim"),  
+            "A-1": ("SASUNG", "sasungdo"),
+            "A-3": ("OG", "og"),
+            "E-7": ("JONGSHIM", "jongshim"),
             "Y-9": ("LYUNDAI", "lyundai"),
         }
     }
@@ -351,11 +352,22 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
             return
 
         price = stock_data["price"]
-        
+
+        exchange_data = gmtodt_collection.find_one({"codecheck": "code"})
+        if not exchange_data:
+            await interaction.response.send_message("환율 정보를 불러올 수 없습니다.", ephemeral=True)
+            return
+
+        exchange_rates = exchange_data.get("gmtodt", 1)  # 기본값 1 (에러 방지)
+
+        # 총 금액 계산
         if stock_category == "세계주식":
-            total_amount = num * price * exchange_rates  # 총 금액 계산 (구매 또는 판매)
+            total_amount = num * price * exchange_rates
         else:
-            total_amount = num * price  # 국내 주식은 환율 없이 계산
+            total_amount = num * price
+
+        # 정수 처리
+        total_amount = int(total_amount)
 
         # 유저 정보 가져오기
         user_data = user_collection.find_one({"user_id": user_id}) or {}
@@ -374,12 +386,16 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
                 {"$inc": {"balancegm": -total_amount, user_stock_field: num}},
                 upsert=True
             )
-            await interaction.response.send_message(f"{db_stock_name} 주식을 성공적으로 구매했습니다! (총 {total_amount:,}GM 사용)", ephemeral=True)
+            await interaction.response.send_message(
+                f"{db_stock_name} 주식을 성공적으로 구매했습니다! (총 {total_amount:,} GM 사용)", ephemeral=True
+            )
 
         elif 판매니구매니.value == "주식판매":
             # 보유 주식이 충분한지 확인
             if current_stock < num:
-                await interaction.response.send_message(f"{db_stock_name} 주식이 부족합니다. 현재 보유 주식: {current_stock}주", ephemeral=True)
+                await interaction.response.send_message(
+                    f"{db_stock_name} 주식이 부족합니다. 현재 보유 주식: {current_stock}주", ephemeral=True
+                )
                 return
 
             # 잔액 추가 & 주식 감소
@@ -388,7 +404,19 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
                 {"$inc": {"balancegm": total_amount, user_stock_field: -num}},
                 upsert=True
             )
-            await interaction.response.send_message(f"{db_stock_name} 주식을 성공적으로 판매했습니다! (총 {total_amount:,}GM 수익)", ephemeral=True)
+
+            if total_amount < 0:
+                await interaction.response.send_message(
+                    f"{db_stock_name} 주식을 성공적으로 판매했습니다! (총 {abs(total_amount):,} GM 손해)", ephemeral=True
+                )
+            elif total_amount == 0:
+                await interaction.response.send_message(
+                    f"{db_stock_name} 주식을 성공적으로 판매했습니다! (이득도 손해도 없습니다)", ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    f"{db_stock_name} 주식을 성공적으로 판매했습니다! (총 {total_amount:,} GM 이득)", ephemeral=True
+                )
 
     else:
         await interaction.response.send_message("잘못된 주식 코드입니다.", ephemeral=True)
