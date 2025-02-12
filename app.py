@@ -271,7 +271,7 @@ async def 주식시장(interaction: discord.Interaction, 국내야세계야: app
                             inline=False)
         else:
             rate_datal = abs(100 - (rate_datal * 100))
-            embed.add_field(name="Y-9 련대",
+            embed.add_field(name="097 하이엇게임즈",
                             value=f"{stock_international_collection.find_one({"company_name": "HIOTGAMES"})["price"]}DT ({exchange_rates * stock_international_collection.find_one({"company_name": "HIOTGAMES"})["price"]}GM) (+{rate_datal}%)",
                             inline=False)
 
