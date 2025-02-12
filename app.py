@@ -15,7 +15,7 @@ client = MongoClient(MONGO_URI)
 userdb = client["user"]  # 데이터베이스 이름
 user_collection = userdb["user"]
 
-stockdb = client["stocks"]
+stockdb = client["stocks"] 
 stock_domestic_collection = stockdb["domestic"]
 stock_international_collection = stockdb["international"]
 gmtodt_collection = stockdb["gmtodt"]
