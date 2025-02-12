@@ -9,7 +9,7 @@ import os
 import random  
 load_dotenv()  # .env 파일 로드
 token = os.getenv("DISCORD_BOT_TOKEN")
-MONGO_URI = os.getenv("MONGO_URI")
+MONGO_URI = os.getenv("MONGO_URI")      
 # MongoDB 클라이언트 설정
 client = MongoClient(MONGO_URI) 
 userdb = client["user"]  # 데이터베이스 이름
@@ -385,11 +385,11 @@ async def 가위바위보하기(interaction: discord.Interaction, 입력창: str
     await interaction.response.send_message(result, ephemeral=True)
 
 
-@bot.tree.command(name='초대하기', description="서버에 게더를 추가하는 버튼을 출력해드려요!")
-async def 추가(interaction: discord.Interaction):
+@bot.tree.command(name='초대하기', description="서버에 게더를 초대하는 버튼을 출력해드려요!")
+async def 초대하기(interaction: discord.Interaction):
     view = discord.ui.View()
     button1 = discord.ui.Button(
-        label="게더봇 내 서버에 추가하기",
+        label="게더봇 내 서버에 초대하기",
         url="https://discord.com/oauth2/authorize?client_id=1316915541709029467&permissions=0&integration_type=0&scope=bot",
         style=discord.ButtonStyle.link
     )
@@ -408,20 +408,24 @@ async def 도움말(interaction: discord.Interaction):
     embed.add_field(name="/도움말", value="명령어 도움말을 알려드려요!", inline=False)
     embed.add_field(name="/정보", value="게더의 작동시간, 제작자, 나이, 게더초대링크를 알려드려요!", inline=False)
     embed.add_field(name="/공지하기", value="관리자코드를 사용하여 모든 서버원에게 공지를 해드려요!", inline=False)
+    embed.add_field(name="/세계주식소개", value="주식 중 세계 주식에 해당되는 것들을 보여줘요!", inline=False)
+    embed.add_field(name="/국내주식소개", value="주식 중 국내 주식에 해당되는 것들을 보여줘요!", inline=False)
+    embed.add_field(name="/주식", value="주식을 구매하거나 판매해요!", inline=False)
     embed.add_field(name="/초대하기", value="게더를 서버에 초대할 수 있는 링크를 드려요!", inline=False)
     embed.add_field(name="/심심하다", value="???를 말해드려요!", inline=False)
     embed.add_field(name="/유저등록", value="게더 주식서비스에 가입해요!", inline=False)
     embed.add_field(name="/유저탈퇴", value="게더 주식서비스에서 탈퇴해요!", inline=False)
     embed.add_field(name="/내통장", value="게더 주식의 통장을 확인해요!", inline=False)
-    embed.add_field(name="/주식시장", value="게더 주식에 상장된 주식들을 확인해요!", inline=False)
+    embed.add_field(name="/주식시장", value="현재 주식의 가격을 확인해요!", inline=False)
     embed.add_field(name="/가위바위보하기", value="저와 가위바위보 한판을 진행하요!", inline=False)
+    embed.add_field(name="/ㅗ", value="헉...", inline=False)
     await interaction.response.send_message(embed=embed)
 
 
 @bot.tree.command(name='ㅗ', description="for 욕쟁이들")
 async def ㅗ(interaction: discord.Interaction):
     await interaction.response.send_message(
-        f"온세상사람들! {interaction.user.name}가 저한테 뻐큐를 날려요! 이런 인성 파탄난 놈을 어떻게 할까요~~~~~~?", ephemeral=False)
+        f"온세상사람들! {interaction.user.name}가 저한테 뻐큐를 날려요! 이런 인성 파탄난 놈을 어떻게 할까요~~~~~~?")
 
 
 @bot.tree.command(name='정보', description="게더의 정보를 알려드려요!")
