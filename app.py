@@ -513,8 +513,41 @@ async def 초대하기(interaction: discord.Interaction):
 
 @bot.tree.command(name='환율', description='현재 GM과 DT간의 환율을 알려드려요!')
 async def 환율(interaction: discord.Interaction):
-        exchange_rates = gmtodt_collection.find_one({"codecheck": "code"})["gmtodt"]
-        await interaction.response.send_message(f"현재 1DT(Dotori Token)의 가격은 {exchange_rates}GM입니다!", ephemeral=True)
+    exchange_rates = gmtodt_collection.find_one({"codecheck": "code"})["gmtodt"]
+    await interaction.response.send_message(f"현재 1DT(Dotori Token)의 가격은 {exchange_rates}GM입니다!")
+
+@bot.tree.command(name='환율투자', description='DT를 구매해요!')
+@app_commands.choices(판매야구매야=[
+    app_commands.Choice(name="판매", value="DT판매"),
+    app_commands.Choice(name="구매", value="DT구매"),
+])
+async def 환율투자(interaction: discord.Interaction, 판매야구매야: app_commands.Choice[str], num: int):
+    exchange_rates = gmtodt_collection.find_one({"codecheck": "code"})["gmtodt"]
+    db_user = user_collection.find_one({"user_id": user.id})
+    balance = db_user.get("balancegm", 0)
+    balancedt = db_user.get("balancedt", 0)
+    total_price = exchange_rates * num
+    if 판매야구매야.value == DT구매:
+        if balance - total_amount < 0:
+            await interaction.response.send_message(f현재 보유하고 있는 GM이 부족합니다. 현재 보유하고 있는 GM: {balance}GM", ephemeral=True)
+        else:
+            user_collection.update_one(
+                {"user_id": user_id},
+                {"$inc": {"balancegm": -total_amount, "balancedt": num}},
+                upsert=True
+            )
+            await interaction.response.send_message(f"성공적으로 {total_price}GM을 사용해 {num}DT를 구입했습니다!", ephemeral=True)
+    else:
+        if balancedt - num < 0:
+            await interaction.response.send_message(f현재 보유하고 있는 DT이 부족합니다. 현재 보유하고 있는 DT: {balancedt}DT", ephemeral=True)
+        else:
+            user_collection.update_one(
+                {"user_id": user_id},
+                {"$inc": {"balancegm":+total_amount, "balancedt": -num}},
+                upsert=True
+            )
+            await interaction.response.send_message(f"성공적으로 {num}DT를 팔아 {total_price}GM을 얻었습니다!", ephemeral=True)
+        
 
 @bot.tree.command(name='도움말', description="게더의 명령어를 알려드려요!")
 async def 도움말(interaction: discord.Interaction):
