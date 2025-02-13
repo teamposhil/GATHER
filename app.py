@@ -391,14 +391,14 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
                 upsert=True
             )
             await interaction.response.send_message(
-                f"{db_stock_name} 주식을 성공적으로 구매했습니다! (총 {total_amount:,} GM 사용)", ephemeral=True
+                f"{db_stock_name} 주식을 {total_amount:,} GM에 성공적으로 구입했습니다!", ephemeral=True
             )
 
         elif 판매니구매니.value == "주식판매":
             # 보유 주식이 충분한지 확인
             if current_stock < num:
                 await interaction.response.send_message(
-                    f"{db_stock_name} 주식이 부족합니다. 현재 보유 주식: {current_stock}주", ephemeral=True
+                    f"현재 보유하고 있는 주식이 부족합니다. 현재 보유하고 있는 {db_stock_name} 주식: {current_stock}주", ephemeral=True
                 )
                 return
 
@@ -409,18 +409,9 @@ async def 주식(interaction: discord.Interaction, 판매니구매니: app_comma
                 upsert=True
             )
 
-            if total_amount < 0:
-                await interaction.response.send_message(
-                    f"{db_stock_name} 주식을 성공적으로 판매했습니다! (총 {abs(total_amount):,} GM 손해)", ephemeral=True
-                )
-            elif total_amount == 0:
-                await interaction.response.send_message(
-                    f"{db_stock_name} 주식을 성공적으로 판매했습니다! (이득도 손해도 없습니다)", ephemeral=True
-                )
-            else:
-                await interaction.response.send_message(
-                    f"{db_stock_name} 주식을 성공적으로 판매했습니다! (총 {total_amount:,} GM 이득)", ephemeral=True
-                )
+            await interaction.response.send_message(
+                f"{db_stock_name} 주식을 {total_amount:,}GM에 성공적으로 팔았습니다!", ephemeral=True
+            )
 
     else:
         await interaction.response.send_message("잘못된 주식 코드입니다.", ephemeral=True)
@@ -539,6 +530,8 @@ async def 도움말(interaction: discord.Interaction):
     embed.add_field(name="/유저등록", value="게더 주식서비스에 가입해요!", inline=False)
     embed.add_field(name="/유저탈퇴", value="게더 주식서비스에서 탈퇴해요!", inline=False)
     embed.add_field(name="/내통장", value="게더 주식의 통장을 확인해요!", inline=False)
+    embed.add_field(name="/환율", value="현재 DT와 GM 간의 확률을 확인해요!", inline=False)
+    embed.add_field(name="/환율투자", value="환율의 차익으로 투자를 해요!", inline=False)
     embed.add_field(name="/내주식", value="보유한 게더 주식을 확인해요!", inline=False)
     embed.add_field(name="/주식시장", value="현재 주식의 가격을 확인해요!", inline=False)
     embed.add_field(name="/가위바위보하기", value="저와 가위바위보 한판을 진행하요!", inline=False)
