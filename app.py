@@ -599,7 +599,7 @@ async def 정보(interaction: discord.Interaction):
     embed.add_field(name="작동 시간", value=uptime_str, inline=False)
     embed.add_field(name="나이", value="약 5개월", inline=False)
     embed.add_field(name="제작자", value="devloggerkr, poshil", inline=False)  # 제작자 정보
-    embed.add_field(name="버전", value="Ver. βeta 0.3.2", inline=False)
+    embed.add_field(name="버전", value="Ver. βeta 0.4.0", inline=False)
     embed.set_footer(text="GATHER")
     # 봇 추가 버튼 생성
     view = discord.ui.View()
