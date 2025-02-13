@@ -1,6 +1,6 @@
 # GATHER, 게더
 게임서버 클래식 자체제작 디스코드 봇
-
+!this reporitory is used to make a pull request to the original repotitory.!
 ----
 ## 게더봇 요구사항
 - 자신이 소유하고 있거나, 봇을 초대시킬 수 있는 디스코드 서버
